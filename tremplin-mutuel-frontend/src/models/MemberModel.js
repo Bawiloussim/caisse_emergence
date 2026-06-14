@@ -12,6 +12,11 @@ export class MemberModel {
     this.momoNumber = data.momoNumber || '';
     this.photo = data.photo || '';
     this.createdAt = data.createdAt || new Date().toISOString();
+
+    // Compte de connexion (espace membres) lié à ce membre
+    this.email = data.email || '';
+    this.accountRole = data.accountRole || 'membre'; // 'secretaire' | 'membre'
+    this.accountId = data.accountId || ''; // identifiant du compte côté backend (MongoDB)
   }
 
   validate() {
@@ -35,6 +40,9 @@ export class MemberModel {
       momoNumber: this.momoNumber,
       photo: this.photo,
       createdAt: this.createdAt,
+      email: this.email,
+      accountRole: this.accountRole,
+      accountId: this.accountId,
     };
   }
 }

@@ -1,34 +1,31 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import logo from '../../assets/logo/2.jpeg';
 
 const LoginPage = () => {
   const { login } = useAuth();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!username.trim() || !password) {
-      setError('Veuillez renseigner votre identifiant et votre mot de passe.');
+    if (!email.trim() || !password) {
+      setError('Veuillez renseigner votre email et votre mot de passe.');
       return;
     }
 
     setSubmitting(true);
-    // Petite latence simulée pour un retour visuel agréable
-    setTimeout(() => {
-      const result = login(username, password);
-      if (!result.success) {
-        setError(result.message);
-      }
-      setSubmitting(false);
-    }, 250);
+    const result = await login(email.trim(), password);
+    if (!result.success) {
+      setError(result.message);
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -56,18 +53,18 @@ const LoginPage = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Identifiant
+                  Email
                 </label>
                 <div className="relative">
-                  <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
-                    type="text"
-                    autoComplete="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="input"
                     style={{ paddingLeft: '2.75rem' }}
-                    placeholder="Votre identifiant"
+                    placeholder="votre.email@exemple.com"
                   />
                 </div>
               </div>

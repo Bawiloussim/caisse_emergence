@@ -5,7 +5,7 @@ import ContributionController from '../../controllers/ContributionController';
 const LoanForm = ({ onClose, onSubmit, members, initialData = null }) => {
   const [formData, setFormData] = useState(() => ({
     memberId: initialData?.memberId || '',
-    amount: initialData?.amount ?? 5000,
+    amount: initialData?.amount ?? 50000,
     duration: initialData?.duration ?? 3,
     motif: initialData?.motif || '',
     status: initialData?.status || 'pending',

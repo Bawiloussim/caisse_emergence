@@ -12,7 +12,6 @@ import Solidarity from './components/Solidarity/Solidarity';
 import Reports from './components/Reports/Reports';
 import { ToastProvider, useToast } from './components/UI/Toast';
 import StorageService from './services/StorageService';
-import Footer from './components/Layout/Footer';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('dashboard');

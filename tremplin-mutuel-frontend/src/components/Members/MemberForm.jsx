@@ -14,6 +14,8 @@ const MemberForm = ({ onClose, onSubmit, editingMember }) => {
     monthlyContribution: editingMember?.monthlyContribution || 5000,
     momoNumber: editingMember?.momoNumber || '',
     photo: editingMember?.photo || '',
+    email: editingMember?.email || '',
+    accountRole: editingMember?.accountRole || 'membre',
   });
   
   const [errors, setErrors] = useState({});
@@ -47,6 +49,11 @@ const MemberForm = ({ onClose, onSubmit, editingMember }) => {
     if (!formData.name.trim()) newErrors.name = 'Le nom est requis';
     if (formData.monthlyContribution < 5000) {
       newErrors.monthlyContribution = 'La cotisation minimale est de 5000 FCFA';
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = "L'email est requis pour créer l'accès du membre";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = 'Email invalide';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -119,6 +126,37 @@ const MemberForm = ({ onClose, onSubmit, editingMember }) => {
               {roles.map(role => (
                 <option key={role} value={role}>{role}</option>
               ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`input ${errors.email ? 'border-red-500' : ''}`}
+              placeholder="exemple@email.com"
+            />
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+            {!editingMember && (
+              <p className="text-xs text-gray-400 mt-1">
+                Un email contenant un mot de passe temporaire sera envoyé à cette adresse.
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Accès à l'espace membres</label>
+            <select
+              name="accountRole"
+              value={formData.accountRole}
+              onChange={handleChange}
+              className="input"
+            >
+              <option value="membre">Membre (lecture seule)</option>
+              <option value="secretaire">Secrétaire (accès complet)</option>
             </select>
           </div>
 

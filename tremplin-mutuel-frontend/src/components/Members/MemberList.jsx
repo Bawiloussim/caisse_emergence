@@ -10,6 +10,7 @@ import Modal from '../UI/Modal';
 import { Plus, Search, FileText } from 'lucide-react';
 import PDFService from '../../services/PDFService';
 import StorageService from '../../services/StorageService';
+import api from '../../services/apiClient';
 
 const MemberList = ({ isSecretary }) => {
   const [members, setMembers] = useState([]);
@@ -29,8 +30,29 @@ const MemberList = ({ isSecretary }) => {
     setMembers(allMembers);
   }
 
-  const handleAddMember = (memberData) => {
+  const handleAddMember = async (memberData) => {
     if (editMember) {
+      // Si ce membre a déjà un compte de connexion, on met à jour ses
+      // informations côté serveur (email, rôle, accès...).
+      if (editMember.accountId) {
+        try {
+          await api.put(`/members/${editMember.accountId}`, {
+            name: memberData.name,
+            email: memberData.email,
+            phone: memberData.phone,
+            role: memberData.role,
+            accountRole: memberData.accountRole,
+            monthlyContribution: memberData.monthlyContribution,
+            joinDate: memberData.joinDate,
+          });
+        } catch (err) {
+          alert(
+            `Le membre a été mis à jour, mais la synchronisation de son compte ` +
+            `de connexion a échoué : ${err.message}`
+          );
+        }
+      }
+
       const result = MemberController.updateMember(editMember.id, memberData);
       if (result.success) {
         loadMembers();
@@ -40,7 +62,29 @@ const MemberList = ({ isSecretary }) => {
       return result;
     }
 
-    const result = MemberController.addMember(memberData);
+    // Nouveau membre : on crée d'abord son compte de connexion (email +
+    // mot de passe temporaire envoyé par email), puis sa fiche locale.
+    let accountId;
+    try {
+      const response = await api.post('/members', {
+        name: memberData.name,
+        email: memberData.email,
+        phone: memberData.phone,
+        role: memberData.role,
+        accountRole: memberData.accountRole,
+        monthlyContribution: memberData.monthlyContribution,
+        joinDate: memberData.joinDate,
+      });
+      accountId = response.member?._id || '';
+      if (response.warning) {
+        alert(response.warning);
+      }
+    } catch (err) {
+      alert(`Impossible de créer le compte de connexion de ce membre : ${err.message}`);
+      return { success: false, errors: [err.message] };
+    }
+
+    const result = MemberController.addMember({ ...memberData, accountId });
     if (result.success) {
       loadMembers();
       setShowForm(false);
@@ -48,8 +92,18 @@ const MemberList = ({ isSecretary }) => {
     return result;
   };
 
-  const handleDeleteMember = (id) => {
+  const handleDeleteMember = async (id) => {
     if (window.confirm('Supprimer ce membre ?')) {
+      const member = MemberController.getMemberById(id);
+
+      if (member?.accountId) {
+        try {
+          await api.delete(`/members/${member.accountId}`);
+        } catch (err) {
+          alert(`La suppression du compte de connexion a échoué : ${err.message}`);
+        }
+      }
+
       MemberController.deleteMember(id);
       loadMembers();
       setSelectedMember(null);
