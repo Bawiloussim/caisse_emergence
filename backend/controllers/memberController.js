@@ -1,27 +1,28 @@
 const Member = require('../models/Member');
+const asyncHandler = require('../utils/asyncHandler');
 const generateTempPassword = require('../utils/generatePassword');
 const sendEmail = require('../utils/sendEmail');
 const { invitationEmail } = require('../utils/emailTemplates');
 
 // GET /api/members — accessible à tout membre connecté (lecture)
-const getMembers = async (req, res) => {
+const getMembers = asyncHandler(async (req, res) => {
   const members = await Member.find().sort({ createdAt: -1 });
   res.json(members);
-};
+});
 
 // GET /api/members/:id
-const getMemberById = async (req, res) => {
+const getMemberById = asyncHandler(async (req, res) => {
   const member = await Member.findById(req.params.id);
   if (!member) return res.status(404).json({ message: 'Membre non trouvé' });
   res.json(member);
-};
+});
 
 /**
  * POST /api/members — secrétaire uniquement
  * Crée le membre avec un mot de passe temporaire et lui envoie un
  * email d'invitation pour qu'il puisse se connecter et le changer.
  */
-const createMember = async (req, res) => {
+const createMember = asyncHandler(async (req, res) => {
   const {
     name,
     email,
@@ -90,10 +91,10 @@ const createMember = async (req, res) => {
   }
 
   res.status(201).json({ member });
-};
+});
 
 // PUT /api/members/:id — secrétaire uniquement
-const updateMember = async (req, res) => {
+const updateMember = asyncHandler(async (req, res) => {
   const member = await Member.findById(req.params.id);
   if (!member) return res.status(404).json({ message: 'Membre non trouvé' });
 
@@ -127,10 +128,10 @@ const updateMember = async (req, res) => {
 
   await member.save();
   res.json(member);
-};
+});
 
 // DELETE /api/members/:id — secrétaire uniquement
-const deleteMember = async (req, res) => {
+const deleteMember = asyncHandler(async (req, res) => {
   const member = await Member.findById(req.params.id);
   if (!member) return res.status(404).json({ message: 'Membre non trouvé' });
 
@@ -145,6 +146,6 @@ const deleteMember = async (req, res) => {
 
   await member.deleteOne();
   res.json({ message: 'Membre supprimé' });
-};
+});
 
 module.exports = { getMembers, getMemberById, createMember, updateMember, deleteMember };

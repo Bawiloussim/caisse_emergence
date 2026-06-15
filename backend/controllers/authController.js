@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Member = require('../models/Member');
+const asyncHandler = require('../utils/asyncHandler');
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -20,7 +21,7 @@ const toPublicUser = (member) => ({
  * Personne ne peut se connecter si son email n'est pas associé à un
  * membre enregistré dans la base par le secrétaire.
  */
-const login = async (req, res) => {
+const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -42,19 +43,19 @@ const login = async (req, res) => {
   const token = generateToken(member._id);
 
   res.json({ token, user: toPublicUser(member) });
-};
+});
 
 /** GET /api/auth/me — profil de l'utilisateur connecté */
-const getMe = async (req, res) => {
+const getMe = asyncHandler(async (req, res) => {
   res.json(toPublicUser(req.user));
-};
+});
 
 /**
  * PUT /api/auth/change-password
  * Utilisé après l'invitation par email (mustChangePassword = true),
  * et pour tout changement de mot de passe ultérieur.
  */
-const changePassword = async (req, res) => {
+const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
   if (!newPassword || newPassword.length < 6) {
@@ -79,6 +80,6 @@ const changePassword = async (req, res) => {
   await member.save();
 
   res.json({ message: 'Mot de passe mis à jour avec succès' });
-};
+});
 
 module.exports = { login, getMe, changePassword };
