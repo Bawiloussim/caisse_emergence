@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 class PDFService {
@@ -99,7 +99,7 @@ class PDFService {
       ['Prêts approuvés', String((loans || []).filter(l => l.status === 'approved').length)],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yStart + 8,
       head: [['Indicateur', 'Montant']],
       body: tableBody,
@@ -128,7 +128,7 @@ class PDFService {
       ];
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: nextY + 4,
       head: [['#', 'Membre', 'Rôle', 'Total cotisé', 'Frais gestion', 'Plafond prêt', 'Mois payés']],
       body: memberRows,
@@ -146,7 +146,7 @@ class PDFService {
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
     const yStart = this.addHeader(doc, 'LISTE DES MEMBRES');
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yStart + 6,
       head: [['N°', 'Nom complet', 'Rôle', 'Téléphone', 'N° CNI', 'Adhésion', 'Cotisation mensuelle']],
       body: members.map((m, i) => [
@@ -185,7 +185,7 @@ class PDFService {
       return row;
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yStart + 4,
       head: [['Membre', ...monthLabels, 'Total cotisé', 'Frais gestion', 'Plafond prêt']],
       body: rows,
@@ -225,7 +225,7 @@ class PDFService {
     y += 2;
     addParagraph('Il a été convenu ce qui suit :', true);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: y,
       head: [['Article', 'Détail', 'Montant']],
       body: [
