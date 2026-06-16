@@ -5,7 +5,6 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const memberRoutes = require('./routes/memberRoutes');
-const seedRoutes = require('./routes/seedRoutes'); // ⚠️ temporaire — à retirer après le premier seed
 
 connectDB();
 
@@ -29,7 +28,6 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/members', memberRoutes);
-app.use('/api/_seed', seedRoutes); // ⚠️ temporaire — à retirer après le premier seed
 
 // 404
 app.use((req, res) => {
