@@ -91,20 +91,38 @@ Render déploie depuis un dépôt Git.
 
 ## Étape 4 — Créer le compte secrétaire (une seule fois)
 
-Le script `npm run seed` doit s'exécuter contre la base **Atlas** (pas votre
-MongoDB local). Sur votre ordinateur :
+Le plan **gratuit** de Render n'inclut pas l'onglet "Shell". Utilisez plutôt
+la route temporaire `/api/_seed/run-seed`, déjà incluse dans le projet.
 
-1. Dans `caisse-emergence-backend/.env`, mettez temporairement
-   `MONGODB_URI` = la chaîne **Atlas** (celle de l'étape 1), avec les bonnes
-   valeurs `SECRETARY_*`.
-2. Lancez :
-   ```bash
-   npm run seed
+1. Sur Render, dans **Environment**, ajoutez une variable :
    ```
-   Cela crée le compte secrétaire directement dans la base utilisée par
-   Render.
-3. Vous pouvez ensuite remettre `MONGODB_URI` en local dans votre `.env` si
-   vous continuez à développer en local.
+   SEED_SECRET=une-longue-chaine-aleatoire-difficile-a-deviner
+   ```
+   (générez-en une avec `node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"`)
+2. Render redéploie automatiquement après l'ajout de la variable. Attendez
+   que le statut repasse à **Live**.
+3. Ouvrez dans votre navigateur (remplacez les valeurs) :
+   ```
+   https://votre-backend.onrender.com/api/_seed/run-seed?secret=VOTRE_SEED_SECRET
+   ```
+4. Vous devez voir :
+   ```json
+   {"message":"✅ Compte secrétaire créé avec succès : secretaire@..."}
+   ```
+5. **Important — supprimez ensuite cet accès** pour ne pas le laisser ouvert :
+   - Sur Render, supprimez la variable `SEED_SECRET` (ou changez sa valeur),
+     **et/ou**
+   - Dans le code, retirez les deux lignes contenant `seedRoutes` dans
+     `server.js`, commitez et repoussez sur GitHub.
+
+> Si vous préférez la méthode classique en ligne de commande (utile en
+> local, ou si vous passez un jour sur un plan payant avec Shell) :
+> ```bash
+> npm run seed
+> ```
+> Cette commande utilise la `MONGODB_URI` du `.env` actif au moment de
+> l'exécution — assurez-vous qu'elle pointe bien vers Atlas si c'est la
+> base que vous voulez alimenter.
 
 ---
 
